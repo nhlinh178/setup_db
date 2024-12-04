@@ -68,15 +68,15 @@ sudo sed -i \
     -e "s|^\(#\?\s*\)default_text_search_config\s*=.*|default_text_search_config = 'pg_catalog.english'|" \
     -e "s|^\(#\?\s*\)shared_preload_libraries\s*=.*|shared_preload_libraries = 'pg_stat_statements'|" \
     /pg_data/pgsql/15/data/postgresql.conf
-
+echo "Cập nhật cấu hình hoàn tất!"
 # Cập nhật .bash_profile
 echo "Cập nhật .bash_profile..."
 cat >> ~/.bash_profile << EOF
 [ -f /etc/profile ] && source /etc/profile
-export PGDATA=/pg_data/data
+export PGDATA=/pg_data/pgsql/15/data
 export PATH=\${PATH}:/usr/pgsql-15/bin
 export PS1="[\u@\h \W]\\$ "
-[ -f /var/lib/pgsql/.pgsql_profile ] && source /var/lib/pgsql/.pgsql_profile
+[ -f /pg_data/pgsql/.pgsql_profile ] && source /pg_data/pgsql/.pgsql_profile
 alias ssh='ssh -o StrictHostKeyChecking=no'
 alias scp='scp -o StrictHostKeyChecking=no'
 alias rsync='rsync -e "ssh -o StrictHostKeyChecking=no"'
@@ -86,7 +86,7 @@ source ~/.bash_profile
 
 # Cấu hình quyền truy cập pg_hba.conf
 echo "Cấu hình quyền truy cập pg_hba.conf..."
-sudo bash -c "cat >> /pg_data/data/pg_hba.conf << EOF
+sudo bash -c "cat >> /pg_data/pgsql/15/data/pg_hba.conf << EOF
 local   all             all                                     md5
 host    all             all             0.0.0.0/0               md5
 host    replication     replica         standby_ip/24           md5
@@ -94,6 +94,6 @@ EOF"
 
 # Khởi động lại PostgreSQL
 echo "Khởi động lại PostgreSQL..."
-sudo pg_ctl start -D /pg_data/data/
+sudo pg_ctl start -D /pg_data/pgsql/15/data/
 
 echo "Hoàn tất quá trình cài đặt và cấu hình PostgreSQL 15."
