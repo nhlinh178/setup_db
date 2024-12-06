@@ -1,5 +1,7 @@
 #!/bin/bash
-
+# Tham số
+echo "Received PATHPG: $PATHPG"
+echo "Received PATHARCHIVE: $PATHARCHIVE"
 # Cài đặt PostgreSQL 15
 echo "Cài đặt PostgreSQL 15..."
 sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
@@ -16,19 +18,23 @@ sudo systemctl status postgresql-15
 # Dừng PostgreSQL và di chuyển thư mục dữ liệu
 echo "Dừng PostgreSQL và di chuyển thư mục dữ liệu..."
 sudo systemctl stop postgresql-15
-sudo rsync -avz /var/lib/pgsql /pg_data/
+sudo mkdir -p /$PATHPG/
+sudo mkdir -p /$PATHARCHIVE/
+sudo chown -R postgres:postgres /$PATHPG  /$PATHARCHIVE
+sudo chmod -R 700 /$PATHPG /$PATHARCHIVE
+sudo rsync -avz /var/lib/pgsql /$PATHPG/
 sudo mv /var/lib/pgsql /var/lib/pgsql.bak
 
 # Cập nhật cấu hình service
 echo "Cập nhật cấu hình service PostgreSQL..."
-sudo sed -i 's|^Environment=PGDATA=.*|Environment=PGDATA=/pg_data/pgsql/15/data|' /usr/lib/systemd/system/postgresql-15.service
+sudo sed -i 's|^Environment=PGDATA=.*|Environment=PGDATA=/$PATHPG/pgsql/15/data|' /usr/lib/systemd/system/postgresql-15.service
 sudo systemctl daemon-reload
 sudo systemctl restart postgresql-15.service
 
 # Cập nhật file postgresql.conf
 echo "Cập nhật cấu hình postgresql.conf..."
 sudo sed -i \
-    -e "s|^\(#\?\s*\)data_directory\s*=.*|data_directory = '/pg_data/pgsql/15/data'|" \
+    -e "s|^\(#\?\s*\)data_directory\s*=.*|data_directory = '/$PATHPG/pgsql/15/data'|" \
     -e "s|^\(#\?\s*\)listen_addresses\s*=.*|listen_addresses = '*'|" \
     -e "s|^\(#\?\s*\)port\s*=.*|port = 5432|" \
     -e "s|^\(#\?\s*\)dynamic_shared_memory_type\s*=.*|dynamic_shared_memory_type = posix|" \
@@ -36,7 +42,7 @@ sudo sed -i \
     -e "s|^\(#\?\s*\)synchronous_commit\s*=.*|synchronous_commit = on|" \
     -e "s|^\(#\?\s*\)wal_log_hints\s*=.*|wal_log_hints = on|" \
     -e "s|^\(#\?\s*\)archive_mode\s*=.*|archive_mode = on|" \
-    -e "s|^\(#\?\s*\)archive_command\s*=.*|archive_command = 'cp %p /data/pg_archivelog/%f'|" \
+    -e "s|^\(#\?\s*\)archive_command\s*=.*|archive_command = 'cp %p /$PATHARCHIVE/%f'|" \
     -e "s|^\(#\?\s*\)max_wal_senders\s*=.*|max_wal_senders = 2|" \
     -e "s|^\(#\?\s*\)log_destination\s*=.*|log_destination = 'stderr'|" \
     -e "s|^\(#\?\s*\)logging_collector\s*=.*|logging_collector = on|" \
@@ -67,33 +73,25 @@ sudo sed -i \
     -e "s|^\(#\?\s*\)lc_time\s*=.*|lc_time = 'en_US.UTF-8'|" \
     -e "s|^\(#\?\s*\)default_text_search_config\s*=.*|default_text_search_config = 'pg_catalog.english'|" \
     -e "s|^\(#\?\s*\)shared_preload_libraries\s*=.*|shared_preload_libraries = 'pg_stat_statements'|" \
-    /pg_data/pgsql/15/data/postgresql.conf
+    /$PATHPG/pgsql/15/data/postgresql.conf
 echo "Cập nhật cấu hình hoàn tất!"
 # Cập nhật .bash_profile
 echo "Cập nhật .bash_profile..."
-cat >> ~/.bash_profile << EOF
+cat >> /$PATHPG/pgsql/.bash_profile << EOF
 [ -f /etc/profile ] && source /etc/profile
-export PGDATA=/pg_data/pgsql/15/data
+export PGDATA=/$PATHPG/pgsql/15/data
 export PATH=\${PATH}:/usr/pgsql-15/bin
 export PS1="[\u@\h \W]\\$ "
-[ -f /pg_data/pgsql/.pgsql_profile ] && source /pg_data/pgsql/.pgsql_profile
+[ -f /$PATHPG/pgsql/.pgsql_profile ] && source /$PATHPG/pgsql/.pgsql_profile
 alias ssh='ssh -o StrictHostKeyChecking=no'
 alias scp='scp -o StrictHostKeyChecking=no'
 alias rsync='rsync -e "ssh -o StrictHostKeyChecking=no"'
 EOF
 
-source ~/.bash_profile
-
-# Cấu hình quyền truy cập pg_hba.conf
-echo "Cấu hình quyền truy cập pg_hba.conf..."
-sudo bash -c "cat >> /pg_data/pgsql/15/data/pg_hba.conf << EOF
-local   all             all                                     md5
-host    all             all             0.0.0.0/0               md5
-host    replication     replica         standby_ip/24           md5
-EOF"
+source /$PATHPG/pgsql/.bash_profile
 
 # Khởi động lại PostgreSQL
 echo "Khởi động lại PostgreSQL..."
-sudo pg_ctl start -D /pg_data/pgsql/15/data/
+sudo su - postgres pg_ctl start -D /$PATHPG/pgsql/15/data/
 
 echo "Hoàn tất quá trình cài đặt và cấu hình PostgreSQL 15."
