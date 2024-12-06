@@ -75,6 +75,8 @@ sudo sed -i \
     -e "s|^\(#\?\s*\)shared_preload_libraries\s*=.*|shared_preload_libraries = 'pg_stat_statements'|" \
     /$PATHPG/pgsql/15/data/postgresql.conf
 echo "Cập nhật cấu hình hoàn tất!"
+# Sửa đường dẫn thư mục home của postgresql
+sudo usermod -d /$PATHPG/pgsql postgres
 # Cập nhật .bash_profile
 echo "Cập nhật .bash_profile..."
 cat >> /$PATHPG/pgsql/.bash_profile << EOF
