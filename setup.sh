@@ -94,6 +94,7 @@ source /$PATHPG/pgsql/.bash_profile
 
 # Khởi động lại PostgreSQL
 echo "Khởi động lại PostgreSQL..."
-sudo su - postgres pg_ctl start -D /$PATHPG/pgsql/15/data/
+sudo su - postgres 
+pg_ctl start -D /$PATHPG/pgsql/15/data/
 
 echo "Hoàn tất quá trình cài đặt và cấu hình PostgreSQL 15."
