@@ -29,7 +29,6 @@ sudo mv /var/lib/pgsql /var/lib/pgsql.bak
 echo "Cập nhật cấu hình service PostgreSQL..."
 sudo sed -i "s|^Environment=PGDATA=.*|Environment=PGDATA=/$PATHPG/pgsql/15/data|" /usr/lib/systemd/system/postgresql-15.service
 sudo systemctl daemon-reload
-sudo systemctl restart postgresql-15.service
 
 # Cập nhật file postgresql.conf
 echo "Cập nhật cấu hình postgresql.conf..."
@@ -94,7 +93,6 @@ source /$PATHPG/pgsql/.bash_profile
 
 # Khởi động lại PostgreSQL
 echo "Khởi động lại PostgreSQL..."
-sudo su - postgres 
-pg_ctl start -D /$PATHPG/pgsql/15/data/
+sudo su - postgres -c "pg_ctl start -D /$PATHPG/pgsql/15/data/"
 
 echo "Hoàn tất quá trình cài đặt và cấu hình PostgreSQL 15."
