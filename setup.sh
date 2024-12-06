@@ -27,7 +27,7 @@ sudo mv /var/lib/pgsql /var/lib/pgsql.bak
 
 # Cập nhật cấu hình service
 echo "Cập nhật cấu hình service PostgreSQL..."
-sudo sed -i 's|^Environment=PGDATA=.*|Environment=PGDATA=/$PATHPG/pgsql/15/data|' /usr/lib/systemd/system/postgresql-15.service
+sudo sed -i "s|^Environment=PGDATA=.*|Environment=PGDATA=/$PATHPG/pgsql/15/data|" /usr/lib/systemd/system/postgresql-15.service
 sudo systemctl daemon-reload
 sudo systemctl restart postgresql-15.service
 
