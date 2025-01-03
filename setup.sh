@@ -21,8 +21,10 @@ echo "Dừng PostgreSQL và di chuyển thư mục dữ liệu..."
 sudo systemctl stop postgresql-15
 sudo mkdir -p /$PATHPG/
 sudo mkdir -p /$PATHARCHIVE/
-sudo chown -R postgres:postgres /$PATHPG  /$PATHARCHIVE
-sudo chmod -R 700 /$PATHPG /$PATHARCHIVE
+sudo chown -R postgres:postgres /$PATHPG
+sudo chown -R postgres:postgres /$PATHARCHIVE
+sudo chmod -R 700 /$PATHPG 
+sudo chmod -R 700 /$PATHARCHIVE
 sudo rsync -avz /var/lib/pgsql /$PATHPG/
 sudo mv /var/lib/pgsql /var/lib/pgsql.bak
 
