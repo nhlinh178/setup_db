@@ -78,10 +78,10 @@ sudo sed -i \
     /$PATHPG/pgsql/15/data/postgresql.conf
 echo "Cập nhật cấu hình hoàn tất!"
 # Sửa đường dẫn thư mục home của postgresql
-sudo usermod -d /$PATHPG/pgsql postgres
+sudo sed -i.bak -E "s|^(postgres:[^:]*:[^:]*:[^:]*:[^:]*:)([^:]*)(:.*)|\1/$PATHPG/pgsql\3|" /etc/passwd
 # Cập nhật .bash_profile
 echo "Cập nhật .bash_profile..."
-cat >> /$PATHPG/pgsql/.bash_profile << EOF
+sudo cat >> /$PATHPG/pgsql/.bash_profile << EOF
 [ -f /etc/profile ] && source /etc/profile
 export PGDATA=/$PATHPG/pgsql/15/data
 export PATH=\${PATH}:/usr/pgsql-15/bin
