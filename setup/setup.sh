@@ -92,7 +92,7 @@ alias scp='scp -o StrictHostKeyChecking=no'
 alias rsync='rsync -e "ssh -o StrictHostKeyChecking=no"'
 EOF
 
-sudo source /$PATHPG/pgsql/.bash_profile
+source /$PATHPG/pgsql/.bash_profile
 sudo chown -R postgres:postgres /$PATHPG
 sudo chmod -R 700 /$PATHPG 
 # Khởi động lại PostgreSQL
