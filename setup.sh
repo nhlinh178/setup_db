@@ -92,7 +92,7 @@ alias scp='scp -o StrictHostKeyChecking=no'
 alias rsync='rsync -e "ssh -o StrictHostKeyChecking=no"'
 EOF
 
-source /$PATHPG/pgsql/.bash_profile
+sudo source /$PATHPG/pgsql/.bash_profile
 
 # Khởi động lại PostgreSQL
 echo "Khởi động lại PostgreSQL..."
