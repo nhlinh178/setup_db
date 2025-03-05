@@ -2,6 +2,7 @@
 # Tham số
 echo "Received PATHPG: $PATHPG"
 echo "Received PATHARCHIVE: $PATHARCHIVE"
+echo "Received IP_RANGE: $IP_RANGE"
 PATHDATA=/$PATHPG/pgsql/15/data
 # Cài đặt PostgreSQL 15
 echo "Cài đặt PostgreSQL 15..."
@@ -99,6 +100,22 @@ alias rsync='rsync -e "ssh -o StrictHostKeyChecking=no"'
 EOF
 
 sudo su - postgres -c "source /$PATHPG/pgsql/.bash_profile"
+echo "Cập nhật pg_hba"
+sudo cat > $PATHDATA/pg_hba.conf << EOF
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+host    all             all             10.0.50.0/24            md5
+host    all             all             $IP_RANGE               md5
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+host    replication     all             127.0.0.1/32            scram-sha-256
+host    replication     all             ::1/128                 scram-sha-256
+EOF
+
 sudo chown -R postgres:postgres /$PATHPG
 sudo chmod -R 700 /$PATHPG 
 # Khởi động lại PostgreSQL
