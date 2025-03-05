@@ -88,7 +88,7 @@ sudo cat > /$PATHPG/pgsql/.bash_profile << EOF
 [ -f /etc/profile ] && source /etc/profile
 PGDATA=$PATHDATA
 export PGDATA
-export PATH=\${PATH}:/usr/pgsql-16/bin
+export PATH=\${PATH}:/usr/pgsql-15/bin
 export PS1="[\u@\h \W]\\\$ "
 # If you want to customize your settings,
 # Use the file below. This is not overridden
