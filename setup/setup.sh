@@ -83,18 +83,22 @@ echo "Cập nhật cấu hình hoàn tất!"
 sudo sed -i.bak -E "s|^(postgres:[^:]*:[^:]*:[^:]*:[^:]*:)([^:]*)(:.*)|\1/data/pg_data/pgsql\3|" /etc/passwd
 # Cập nhật .bash_profile
 echo "Cập nhật .bash_profile..."
-sudo cat >> /$PATHPG/pgsql/.bash_profile << EOF
+sudo cat > /$PATHPG/pgsql/.bash_profile << EOF
 [ -f /etc/profile ] && source /etc/profile
-export PGDATA=$PATHDATA
-export PATH=\${PATH}:/usr/pgsql-15/bin
-export PS1="[\u@\h \W]\\$ "
+PGDATA=$PATHDATA
+export PGDATA
+export PATH=\${PATH}:/usr/pgsql-16/bin
+export PS1="[\u@\h \W]\\\$ "
+# If you want to customize your settings,
+# Use the file below. This is not overridden
+# by the RPMS.
 [ -f /$PATHPG/pgsql/.pgsql_profile ] && source /$PATHPG/pgsql/.pgsql_profile
 alias ssh='ssh -o StrictHostKeyChecking=no'
 alias scp='scp -o StrictHostKeyChecking=no'
 alias rsync='rsync -e "ssh -o StrictHostKeyChecking=no"'
 EOF
 
-source /$PATHPG/pgsql/.bash_profile
+sudo su - postgres -c "source /$PATHPG/pgsql/.bash_profile"
 sudo chown -R postgres:postgres /$PATHPG
 sudo chmod -R 700 /$PATHPG 
 # Khởi động lại PostgreSQL
