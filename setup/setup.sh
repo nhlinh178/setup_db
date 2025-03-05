@@ -2,6 +2,7 @@
 # Tham số
 echo "Received PATHPG: $PATHPG"
 echo "Received PATHARCHIVE: $PATHARCHIVE"
+PATHDATA=/$PATHPG/pgsql/15/data
 # Cài đặt PostgreSQL 15
 echo "Cài đặt PostgreSQL 15..."
 sudo dnf install -y rsync
@@ -23,6 +24,7 @@ sudo mkdir -p /$PATHPG/
 sudo mkdir -p /$PATHARCHIVE/
 sudo chown -R postgres:postgres /$PATHPG
 sudo chown -R postgres:postgres /$PATHARCHIVE
+sudo chmod 755 /data
 sudo chmod -R 700 /$PATHPG 
 sudo chmod -R 700 /$PATHARCHIVE
 sudo rsync -avz /var/lib/pgsql /$PATHPG/
@@ -30,13 +32,13 @@ sudo mv /var/lib/pgsql /var/lib/pgsql.bak
 
 # Cập nhật cấu hình service
 echo "Cập nhật cấu hình service PostgreSQL..."
-sudo sed -i "s|^Environment=PGDATA=.*|Environment=PGDATA=/$PATHPG/pgsql/15/data|" /usr/lib/systemd/system/postgresql-15.service
+sudo sed -i "s|^Environment=PGDATA=.*|Environment=PGDATA=$PATHDATA|" /usr/lib/systemd/system/postgresql-15.service
 sudo systemctl daemon-reload
 
 # Cập nhật file postgresql.conf
 echo "Cập nhật cấu hình postgresql.conf..."
 sudo sed -i \
-    -e "s|^\(#\?\s*\)data_directory\s*=.*|data_directory = '/$PATHPG/pgsql/15/data'|" \
+    -e "s|^\(#\?\s*\)data_directory\s*=.*|data_directory = '$PATHDATA'|" \
     -e "s|^\(#\?\s*\)listen_addresses\s*=.*|listen_addresses = '*'|" \
     -e "s|^\(#\?\s*\)port\s*=.*|port = 5432|" \
     -e "s|^\(#\?\s*\)dynamic_shared_memory_type\s*=.*|dynamic_shared_memory_type = posix|" \
@@ -75,7 +77,7 @@ sudo sed -i \
     -e "s|^\(#\?\s*\)lc_time\s*=.*|lc_time = 'en_US.UTF-8'|" \
     -e "s|^\(#\?\s*\)default_text_search_config\s*=.*|default_text_search_config = 'pg_catalog.english'|" \
     -e "s|^\(#\?\s*\)shared_preload_libraries\s*=.*|shared_preload_libraries = 'pg_stat_statements'|" \
-    /$PATHPG/pgsql/15/data/postgresql.conf
+    $PATHDATA/postgresql.conf
 echo "Cập nhật cấu hình hoàn tất!"
 # Sửa đường dẫn thư mục home của postgresql
 sudo sed -i.bak -E "s|^(postgres:[^:]*:[^:]*:[^:]*:[^:]*:)([^:]*)(:.*)|\1/data/pg_data/pgsql\3|" /etc/passwd
@@ -83,7 +85,7 @@ sudo sed -i.bak -E "s|^(postgres:[^:]*:[^:]*:[^:]*:[^:]*:)([^:]*)(:.*)|\1/data/p
 echo "Cập nhật .bash_profile..."
 sudo cat >> /$PATHPG/pgsql/.bash_profile << EOF
 [ -f /etc/profile ] && source /etc/profile
-export PGDATA=/$PATHPG/pgsql/15/data
+export PGDATA=$PATHDATA
 export PATH=\${PATH}:/usr/pgsql-15/bin
 export PS1="[\u@\h \W]\\$ "
 [ -f /$PATHPG/pgsql/.pgsql_profile ] && source /$PATHPG/pgsql/.pgsql_profile
