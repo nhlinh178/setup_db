@@ -85,4 +85,3 @@ sudo chmod -R 700 /$PATHPG
 echo "Khởi động lại PostgreSQL..."
 sudo su - postgres -c "pg_ctl start -D $PATHDATA"
 echo "Hoàn tất quá trình cài đặt và cấu hình PostgreSQL 15."
-sudo su - postgres -c "pg_ctl restart"
