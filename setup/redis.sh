@@ -2,7 +2,7 @@
 echo "Cài đặt Redis"
 sudo yum install redis -y
 
-echo "Sửa file redis.conf 
+echo "Sửa file redis.conf "
 sudo cp /etc/redis.conf /etc/redis.conf.bak  
 # Sao lưu file gốc
 # Thay đổi bind và port
